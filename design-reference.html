@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moonbeam — Design Reference v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS — match these exactly in production app
+   ============================================================ */
+:root {
+  --ink: #08090C;
+  --ink-2: #0C0D11;
+  --surface: #11131A;
+  --surface-2: #181B24;
+  --surface-3: #1F232E;
+
+  --border: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.10);
+  --border-bright: rgba(201, 185, 138, 0.18);
+
+  --text: #E8E6E0;
+  --text-secondary: #9A9892;
+  --text-tertiary: #6B6960;
+  --text-faint: #4A4A45;
+
+  --beam: #D4C28A;
+  --beam-bright: #E8D9A3;
+  --beam-dim: rgba(212, 194, 138, 0.12);
+
+  --serif: 'Instrument Serif', Georgia, serif;
+  --sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--ink);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.005em;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: -300px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1200px;
+  height: 800px;
+  background: radial-gradient(ellipse at center,
+    rgba(212, 194, 138, 0.06) 0%,
+    rgba(212, 194, 138, 0.02) 30%,
+    transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 1;
+}
+
+main {
+  position: relative;
+  z-index: 2;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 80px 24px 120px;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.header {
+  margin-bottom: 40px;
+  animation: fadeUp 800ms var(--ease-out) backwards;
+}
+
+.wordmark {
+  font-family: var(--serif);
+  font-size: 38px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.wordmark .dot { color: var(--beam); font-style: normal; }
+
+/* Product context line — now prominent, at the top */
+.context-line {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--text-tertiary);
+}
+
+.context-line a {
+  color: var(--beam);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(212, 194, 138, 0.25);
+  padding-bottom: 1px;
+  transition: all 200ms var(--ease-out);
+}
+
+.context-line a:hover {
+  color: var(--beam-bright);
+  border-bottom-color: var(--beam-bright);
+}
+
+.summary {
+  margin-top: 48px;
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  animation: fadeUp 800ms var(--ease-out) 100ms backwards;
+}
+
+.summary-count {
+  font-family: var(--serif);
+  font-size: 56px;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--text);
+}
+
+.summary-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  padding-bottom: 6px;
+}
+
+/* ============================================================
+   CONTROL BAR — legend (as scroll-spy jump-nav) + sort toggle.
+   Sticky. Two rows: tiers on top, sort toggle below.
+   ============================================================ */
+.control-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  margin: 36px -20px 0;
+  padding: 16px 20px;
+  background: rgba(8, 9, 12, 0.55);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border-radius: 14px;
+  animation: fadeUp 800ms var(--ease-out) 150ms backwards;
+}
+
+/* hairline divider only at the bottom, very faint — no box outline */
+.control-bar::after {
+  content: '';
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 0;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Row 1: the tier legend — all four on one row, each a jump link */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  padding: 5px 9px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: background 180ms var(--ease-out), border-color 180ms var(--ease-out);
+  cursor: pointer;
+}
+
+.legend-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.legend-item:hover .legend-name {
+  color: var(--text);
+}
+
+/* Scroll-spy active state */
+.legend-item.active {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--border-strong);
+}
+
+.legend-item.active .legend-name {
+  color: var(--text);
+}
+
+.legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-dot.bright {
+  background: var(--beam);
+  box-shadow: 0 0 8px rgba(212, 194, 138, 0.5);
+}
+.legend-dot.clear { background: var(--text-secondary); }
+.legend-dot.faint { background: var(--text-tertiary); }
+.legend-dot.hidden {
+  background: transparent;
+  border: 1px solid var(--text-faint);
+}
+
+.legend-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.legend-name {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-secondary);
+}
+
+.legend-desc {
+  font-size: 11px;
+  color: var(--text-faint);
+  line-height: 1.3;
+}
+
+/* Sort toggle */
+/* ============================================================
+   TIER SECTION
+   ============================================================ */
+.tier-section {
+  margin-top: 56px;
+  scroll-margin-top: 120px;
+  animation: fadeUp 800ms var(--ease-out) backwards;
+}
+.tier-section:nth-of-type(1) { animation-delay: 200ms; }
+.tier-section:nth-of-type(2) { animation-delay: 300ms; }
+.tier-section:nth-of-type(3) { animation-delay: 400ms; }
+
+.tier-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tier-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.tier-section.bright .tier-title { color: var(--beam); }
+.tier-section.faint .tier-title { color: var(--text-secondary); }
+
+.tier-count {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.04em;
+}
+
+.tier-meta {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--text-faint);
+}
+
+/* ============================================================
+   SIGNAL CARD
+   ============================================================ */
+.card {
+  position: relative;
+  background: linear-gradient(180deg, var(--ink-2) 0%, var(--surface) 100%);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px 26px;
+  margin-bottom: 16px;
+  transition: all 280ms var(--ease-out);
+  animation: cardIn 700ms var(--ease-out) backwards;
+}
+
+.card:hover {
+  border-color: var(--border-strong);
+  background: linear-gradient(180deg, #0E1015 0%, #14171F 100%);
+  transform: translateY(-1px);
+}
+
+/* Bright tier cards — stronger glow + slow subtle pulse */
+.tier-section.bright .card {
+  border-color: var(--border-bright);
+  background:
+    radial-gradient(ellipse 600px 200px at 50% 0%,
+      rgba(212, 194, 138, 0.05) 0%,
+      transparent 60%),
+    linear-gradient(180deg, var(--ink-2) 0%, var(--surface) 100%);
+  animation: cardIn 700ms var(--ease-out) backwards,
+             brightPulse 5s var(--ease-in-out) infinite;
+}
+
+@keyframes brightPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(212, 194, 138, 0.10),
+      0 1px 0 rgba(255, 255, 255, 0.03) inset,
+      0 20px 60px -25px rgba(212, 194, 138, 0.10);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1.25px rgba(212, 194, 138, 0.27),
+      0 1px 0 rgba(255, 255, 255, 0.045) inset,
+      0 24px 85px -22px rgba(212, 194, 138, 0.31);
+  }
+}
+
+/* Stagger the pulse so cards don't all breathe in sync */
+.tier-section.bright .card:nth-of-type(2) { animation-delay: 60ms, 1.5s; }
+.tier-section.bright .card:nth-of-type(3) { animation-delay: 120ms, 3s; }
+
+.tier-section.bright .card:hover {
+  animation-play-state: running, paused;
+  box-shadow:
+    0 0 0 1px rgba(212, 194, 138, 0.20),
+    0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 30px 90px -20px rgba(212, 194, 138, 0.22);
+}
+
+/* Faint tier cards — visually quieter */
+.tier-section.faint .card {
+  background: var(--ink-2);
+  padding: 20px 24px;
+  opacity: 0.78;
+}
+.tier-section.faint .card:hover { opacity: 1; }
+
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 4px;
+}
+
+.crescent { width: 22px; height: 22px; flex-shrink: 0; }
+
+.score {
+  font-family: var(--mono);
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.tier-section.bright .score { color: var(--beam-bright); }
+
+.dash {
+  color: var(--text-faint);
+  font-family: var(--mono);
+  font-size: 14px;
+  margin: 0 -2px;
+}
+
+.author {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: -0.005em;
+  text-decoration: none;
+}
+
+.author:hover { color: var(--beam); }
+
+.verified {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 4px;
+  color: var(--beam);
+  opacity: 0.7;
+}
+
+.meta-line {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+  margin-bottom: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.meta-dot { color: var(--text-faint); }
+
+.bio {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 18px;
+  font-style: italic;
+  padding-left: 12px;
+  border-left: 1px solid var(--border);
+}
+
+.tweet-text {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text);
+  letter-spacing: -0.005em;
+  margin-bottom: 24px;
+  white-space: pre-wrap;
+}
+
+.match {
+  background: rgba(212, 194, 138, 0.04);
+  border-left: 2px solid var(--beam);
+  border-radius: 0 6px 6px 0;
+  padding: 12px 16px;
+  margin-bottom: 30px;
+}
+
+.match-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--beam);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.match-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.draft {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.draft-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.draft-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--text-tertiary);
+}
+
+.copy-btn {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  padding: 4px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 200ms var(--ease-out);
+}
+
+.copy-btn:hover {
+  background: var(--surface-3);
+  color: var(--beam);
+  border-color: var(--border-bright);
+}
+
+.copy-btn.copied {
+  background: rgba(212, 194, 138, 0.10);
+  color: var(--beam-bright);
+  border-color: var(--beam);
+}
+
+.draft-body {
+  padding: 14px 16px;
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.dm-toggle {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 200ms var(--ease-out);
+  margin-bottom: 12px;
+}
+
+.dm-toggle:hover {
+  border-color: var(--border-strong);
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.dm-toggle-left { display: flex; align-items: center; gap: 10px; }
+
+.dm-toggle-icon {
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid var(--text-tertiary);
+  border-bottom: 1.5px solid var(--text-tertiary);
+  transform: rotate(-45deg);
+  transition: transform 200ms var(--ease-out);
+}
+
+.dm-toggle.open .dm-toggle-icon { transform: rotate(45deg); }
+
+.dm-toggle-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--text-tertiary);
+}
+
+.dm-toggle-hint {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: 0.12em;
+}
+
+.dm-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 320ms var(--ease-out);
+}
+
+.dm-toggle.open + .dm-content { max-height: 400px; }
+.dm-toggle.open + .dm-content .draft { margin-top: -6px; }
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.action-btn {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  padding: 7px 14px;
+  border-radius: 7px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 200ms var(--ease-out);
+  letter-spacing: -0.005em;
+}
+
+.action-btn:hover {
+  background: var(--surface-3);
+  color: var(--text);
+  border-color: var(--border-bright);
+}
+
+.action-btn.primary:hover { color: var(--beam-bright); }
+.action-btn.danger:hover { color: #C99090; }
+
+.action-btn .icon { width: 14px; height: 14px; flex-shrink: 0; }
+
+.spacer { flex: 1; }
+
+.tier-section.faint .card .tweet-text {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+.tier-section.faint .card .meta-line { margin-bottom: 12px; }
+.tier-section.faint .card .actions {
+  margin-top: 12px;
+  padding-top: 12px;
+}
+
+.lower-priority-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--text-faint);
+  margin-left: auto;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+/* ============================================================
+   HIDDEN TIER
+   ============================================================ */
+.hidden-section {
+  margin-top: 80px;
+  scroll-margin-top: 120px;
+  border-top: 1px solid var(--border);
+  padding-top: 32px;
+}
+
+.hidden-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  padding: 12px 0;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--text-tertiary);
+  transition: color 200ms var(--ease-out);
+}
+
+.hidden-toggle:hover { color: var(--text-secondary); }
+
+.hidden-toggle .arrow {
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 200ms var(--ease-out);
+}
+
+.hidden-toggle.open .arrow { transform: rotate(45deg); }
+
+.hidden-list {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 400ms var(--ease-out);
+}
+
+.hidden-toggle.open + .hidden-list { max-height: 2000px; }
+
+.hidden-row {
+  display: grid;
+  grid-template-columns: 60px 1fr auto;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  font-size: 13px;
+}
+
+.hidden-row .h-score {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+.hidden-row .h-text {
+  color: var(--text-tertiary);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.hidden-row .h-author {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer {
+  margin-top: 120px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--text-faint);
+}
+
+footer a {
+  color: var(--text-tertiary);
+  text-decoration: none;
+  transition: color 200ms var(--ease-out);
+}
+
+footer a:hover { color: var(--beam); }
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card:nth-of-type(1) { animation-delay: 0ms; }
+.card:nth-of-type(2) { animation-delay: 60ms; }
+.card:nth-of-type(3) { animation-delay: 120ms; }
+.card:nth-of-type(4) { animation-delay: 180ms; }
+.card:nth-of-type(5) { animation-delay: 240ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  html, body {
+    scroll-behavior: auto;
+  }
+  .tier-section.bright .card {
+    animation: cardIn 700ms var(--ease-out) backwards;
+  }
+}
+</style>
+</head>
+<body>
+
+<main>
+  <header class="header">
+    <h1 class="wordmark">moonbeam<span class="dot">.</span></h1>
+    <div class="context-line">
+      Finding signal in the noise for: <a href="https://replaiced.co" target="_blank">REPLAICED</a>
+    </div>
+
+    <div class="summary">
+      <div class="summary-count">142</div>
+      <div class="summary-label">Recent prospects · last 14 days</div>
+    </div>
+  </header>
+
+  <!-- CONTROL BAR: legend + sort toggle -->
+  <div class="control-bar">
+    <div class="legend">
+      <a href="#tier-bright" class="legend-item">
+        <div class="legend-dot bright"></div>
+        <div class="legend-text">
+          <div class="legend-name">Bright</div>
+          <div class="legend-desc">80—100 · strongest intent</div>
+        </div>
+      </a>
+      <a href="#tier-clear" class="legend-item">
+        <div class="legend-dot clear"></div>
+        <div class="legend-text">
+          <div class="legend-name">Clear</div>
+          <div class="legend-desc">60—79 · solid signal</div>
+        </div>
+      </a>
+      <a href="#tier-faint" class="legend-item">
+        <div class="legend-dot faint"></div>
+        <div class="legend-text">
+          <div class="legend-name">Faint</div>
+          <div class="legend-desc">40—59 · weaker, worth a look</div>
+        </div>
+      </a>
+      <a href="#tier-hidden" class="legend-item">
+        <div class="legend-dot hidden"></div>
+        <div class="legend-text">
+          <div class="legend-name">Hidden</div>
+          <div class="legend-desc">0—39 · low-fit, collapsed</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       BRIGHT TIER
+       ============================================================ -->
+  <section class="tier-section bright" id="tier-bright">
+    <div class="tier-header">
+      <h2 class="tier-title">Bright</h2>
+      <div class="tier-count">8 signals</div>
+      <div class="tier-meta">Score 80—100</div>
+    </div>
+
+    <article class="card">
+      <div class="card-head">
+        <svg class="crescent" viewBox="0 0 22 22" fill="none">
+          <defs>
+            <linearGradient id="bg1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#E8D9A3"/>
+              <stop offset="100%" stop-color="#C9B98A"/>
+            </linearGradient>
+          </defs>
+          <circle cx="11" cy="11" r="10" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+          <path d="M 11 1 A 10 10 0 0 1 11 21 A 7 10 0 0 0 11 1 Z" fill="url(#bg1)"/>
+        </svg>
+        <span class="score">96</span>
+        <span class="dash">—</span>
+        <a href="#" class="author">@ThetaForgeCo</a>
+      </div>
+
+      <div class="meta-line">
+        <span>Posted 14h ago</span>
+        <span class="meta-dot">·</span>
+        <span>0 replies</span>
+        <span class="meta-dot">·</span>
+        <span>0 likes</span>
+        <span class="meta-dot">·</span>
+        <span>2,224 followers</span>
+      </div>
+
+      <div class="bio">Software engineer · 25 yrs · indie game dev · just laid off</div>
+
+      <div class="tweet-text">I was laid off a couple weeks ago.. 25 Years of experience as a software/game/fintech engineer.
+
+Replaced by a guy in product with 0 experience, but he has a claude subscription at 1/8th the cost (true story).
+
+I received 6 months severance at least, and I'm the happiest I've been in a long time.
+
+I'm using this runway to go all in on myself and #indiegames.</div>
+
+      <div class="match">
+        <div class="match-label">Why this matched</div>
+        <div class="match-text">Experienced software/game/fintech engineer with 25 years experience who was laid off 2 weeks ago and explicitly replaced by someone with a Claude subscription at 1/8th the cost.</div>
+      </div>
+
+      <div class="draft">
+        <div class="draft-header">
+          <span class="draft-label">Reply draft</span>
+          <button class="copy-btn" onclick="copyDraft(this)">Copy</button>
+        </div>
+        <div class="draft-body">25 years and replaced by a subscription — that's brutal and way more common than people admit. sounds like you're channeling it into something you actually want to build, which is the best possible response. wishing you momentum on the indie game.</div>
+      </div>
+
+      <button class="dm-toggle" onclick="toggleDM(this)">
+        <div class="dm-toggle-left">
+          <div class="dm-toggle-icon"></div>
+          <span class="dm-toggle-label">DM draft</span>
+        </div>
+        <span class="dm-toggle-hint">Click to expand</span>
+      </button>
+      <div class="dm-content">
+        <div class="draft">
+          <div class="draft-header">
+            <span class="draft-label">DM draft</span>
+            <button class="copy-btn" onclick="copyDraft(this)">Copy</button>
+          </div>
+          <div class="draft-body">hey — saw your tweet. that situation is rough, and honestly it's a fear a lot of people share but don't talk about openly. I built a small tool called REPLAICED that helps map out which skills would insulate someone from that kind of replacement, plus career pivot options if you want them. might give you a clearer picture as you rebuild. it's free, takes 2 minutes: https://replaiced.co. no pressure at all though. — Andre</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="action-btn primary">
+          <svg class="icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 11V3h8M3 3l8 8" stroke-linecap="round"/></svg>
+          Open in X
+        </button>
+        <span class="spacer"></span>
+        <button class="action-btn danger">Mark irrelevant</button>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-head">
+        <svg class="crescent" viewBox="0 0 22 22" fill="none">
+          <circle cx="11" cy="11" r="10" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+          <path d="M 11 1.5 A 9.5 9.5 0 0 1 11 20.5 A 6 9.5 0 0 0 11 1.5 Z" fill="url(#bg1)"/>
+        </svg>
+        <span class="score">87</span>
+        <span class="dash">—</span>
+        <a href="#" class="author">@flowstate_dev<span class="verified">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M6 0L7.5 4.5L12 6L7.5 7.5L6 12L4.5 7.5L0 6L4.5 4.5L6 0Z"/></svg>
+        </span></a>
+      </div>
+
+      <div class="meta-line">
+        <span>Posted 4h ago</span>
+        <span class="meta-dot">·</span>
+        <span>12 replies</span>
+        <span class="meta-dot">·</span>
+        <span>89 likes</span>
+        <span class="meta-dot">·</span>
+        <span>14,200 followers</span>
+      </div>
+
+      <div class="bio">Senior PM · ex-Stripe · writing about the post-AI knowledge worker</div>
+
+      <div class="tweet-text">Got the news today. Half my team gone. AI didn't replace them — leadership pretending it did to clean up an org chart.
+
+The thing nobody talks about: you can't compete with a story that has the word "AI" in it.</div>
+
+      <div class="match">
+        <div class="match-label">Why this matched</div>
+        <div class="match-text">Senior PM at a known company processing recent layoffs at their team — direct adjacent anxiety with notable reach.</div>
+      </div>
+
+      <div class="draft">
+        <div class="draft-header">
+          <span class="draft-label">Reply draft</span>
+          <button class="copy-btn" onclick="copyDraft(this)">Copy</button>
+        </div>
+        <div class="draft-body">the "AI" word does so much heavy lifting in those decks right now. sorry about your team — that kind of thing leaves a mark even if you weren't the one cut.</div>
+      </div>
+
+      <button class="dm-toggle" onclick="toggleDM(this)">
+        <div class="dm-toggle-left">
+          <div class="dm-toggle-icon"></div>
+          <span class="dm-toggle-label">DM draft</span>
+        </div>
+        <span class="dm-toggle-hint">Click to expand</span>
+      </button>
+      <div class="dm-content">
+        <div class="draft">
+          <div class="draft-header">
+            <span class="draft-label">DM draft</span>
+            <button class="copy-btn" onclick="copyDraft(this)">Copy</button>
+          </div>
+          <div class="draft-body">your tweet about leadership using "AI" as a story-cover for layoffs really stuck with me. I built a small tool, REPLAICED, that does the inverse — given a resume, it maps which skills actually insulate someone from this kind of gutting. given your network, it might be useful for some of your team. free, no signup wall: https://replaiced.co. — Andre</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="action-btn primary">
+          <svg class="icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 11V3h8M3 3l8 8" stroke-linecap="round"/></svg>
+          Open in X
+        </button>
+        <span class="spacer"></span>
+        <button class="action-btn danger">Mark irrelevant</button>
+      </div>
+    </article>
+  </section>
+
+  <!-- ============================================================
+       CLEAR TIER
+       ============================================================ -->
+  <section class="tier-section" id="tier-clear">
+    <div class="tier-header">
+      <h2 class="tier-title">Clear</h2>
+      <div class="tier-count">12 signals</div>
+      <div class="tier-meta">Score 60—79</div>
+    </div>
+
+    <article class="card">
+      <div class="card-head">
+        <svg class="crescent" viewBox="0 0 22 22" fill="none">
+          <circle cx="11" cy="11" r="10" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+          <path d="M 11 2.5 A 8.5 8.5 0 0 1 11 19.5 A 4.5 8.5 0 0 0 11 2.5 Z" fill="#9A9892"/>
+        </svg>
+        <span class="score">73</span>
+        <span class="dash">—</span>
+        <a href="#" class="author">@vlelyavin</a>
+      </div>
+
+      <div class="meta-line">
+        <span>Posted 2d ago</span>
+        <span class="meta-dot">·</span>
+        <span>0 replies</span>
+        <span class="meta-dot">·</span>
+        <span>0 likes</span>
+        <span class="meta-dot">·</span>
+        <span>436 followers</span>
+      </div>
+
+      <div class="tweet-text">i was laid off from coinbase today.
+
+i was one of the lucky ones — got a six-figure severance. wasn't surprised either. the writing was on the wall after the ai-only-engineers memo.
+
+now what?</div>
+
+      <div class="match">
+        <div class="match-label">Why this matched</div>
+        <div class="match-text">Coinbase engineer just laid off in current AI-driven workforce reduction, openly asking what comes next.</div>
+      </div>
+
+      <div class="draft">
+        <div class="draft-header">
+          <span class="draft-label">Reply draft</span>
+          <button class="copy-btn" onclick="copyDraft(this)">Copy</button>
+        </div>
+        <div class="draft-body">sorry about the coinbase cut — and the "what now" question is the hardest part, not the layoff itself. happy to share what's worked for friends in similar spots if useful.</div>
+      </div>
+
+      <button class="dm-toggle" onclick="toggleDM(this)">
+        <div class="dm-toggle-left">
+          <div class="dm-toggle-icon"></div>
+          <span class="dm-toggle-label">DM draft</span>
+        </div>
+        <span class="dm-toggle-hint">Click to expand</span>
+      </button>
+      <div class="dm-content">
+        <div class="draft">
+          <div class="draft-header">
+            <span class="draft-label">DM draft</span>
+            <button class="copy-btn" onclick="copyDraft(this)">Copy</button>
+          </div>
+          <div class="draft-body">saw your tweet — sorry about coinbase. the "now what" is real, and most of the takes online are bad. I built REPLAICED to help people in your spot map which skills actually compound vs. which are about to get commoditized. takes 2 minutes, totally free: https://replaiced.co. no pressure. — Andre</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="action-btn primary">
+          <svg class="icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 11V3h8M3 3l8 8" stroke-linecap="round"/></svg>
+          Open in X
+        </button>
+        <span class="spacer"></span>
+        <button class="action-btn danger">Mark irrelevant</button>
+      </div>
+    </article>
+  </section>
+
+  <!-- ============================================================
+       FAINT TIER
+       ============================================================ -->
+  <section class="tier-section faint" id="tier-faint">
+    <div class="tier-header">
+      <h2 class="tier-title">Faint</h2>
+      <div class="tier-count">15 signals</div>
+      <div class="tier-meta">Score 40—59 · Lower priority</div>
+    </div>
+
+    <article class="card">
+      <div class="card-head">
+        <svg class="crescent" viewBox="0 0 22 22" fill="none">
+          <circle cx="11" cy="11" r="10" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+          <path d="M 11 5 A 6 6 0 0 1 11 17 A 2 6 0 0 0 11 5 Z" fill="#6B6960"/>
+        </svg>
+        <span class="score">52</span>
+        <span class="dash">—</span>
+        <a href="#" class="author">@deni_codes</a>
+        <span class="lower-priority-tag">Lower priority</span>
+      </div>
+
+      <div class="meta-line">
+        <span>Posted 5d ago</span>
+        <span class="meta-dot">·</span>
+        <span>2 replies</span>
+        <span class="meta-dot">·</span>
+        <span>8 likes</span>
+        <span class="meta-dot">·</span>
+        <span>1,948 followers</span>
+      </div>
+
+      <div class="tweet-text">why are companies laying so many people off right now? is it really AI or is that just the cover story everyone agreed on?</div>
+
+      <div class="match">
+        <div class="match-label">Why this matched</div>
+        <div class="match-text">Asking the AI-displacement question publicly but without personal stake or significant reach.</div>
+      </div>
+
+      <div class="actions">
+        <button class="action-btn primary">
+          <svg class="icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 11V3h8M3 3l8 8" stroke-linecap="round"/></svg>
+          Open in X
+        </button>
+        <span class="spacer"></span>
+        <button class="action-btn danger">Mark irrelevant</button>
+      </div>
+    </article>
+  </section>
+
+  <!-- ============================================================
+       HIDDEN TIER
+       ============================================================ -->
+  <div class="hidden-section" id="tier-hidden">
+    <button class="hidden-toggle" onclick="toggleHidden(this)">
+      <span class="arrow"></span>
+      <span>Show 7 low-fit signals</span>
+    </button>
+    <div class="hidden-list">
+      <div class="hidden-row">
+        <div class="h-score">28</div>
+        <div class="h-text">just woke up at 3am thinking about whether I should learn AI tools or just enjoy the time I have left in tech lol</div>
+        <div class="h-author">@nightowl_dev</div>
+      </div>
+      <div class="hidden-row">
+        <div class="h-score">22</div>
+        <div class="h-text">"AI is coming for your job" is the new "the algorithm changed"</div>
+        <div class="h-author">@moodposter</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div>Built by <a href="https://www.linkedin.com/in/andre-llewellyn-b69a294/" target="_blank">Andre Llewellyn</a></div>
+    <div>Powering REPLAICED outreach</div>
+  </footer>
+</main>
+
+<script>
+  function copyDraft(btn) {
+    const body = btn.closest('.draft').querySelector('.draft-body').textContent;
+    navigator.clipboard.writeText(body).then(() => {
+      btn.classList.add('copied');
+      btn.textContent = 'Copied';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.textContent = 'Copy';
+      }, 1800);
+    });
+  }
+
+  function toggleDM(btn) { btn.classList.toggle('open'); }
+
+  function toggleHidden(btn) {
+    btn.classList.toggle('open');
+    const span = btn.querySelector('span:last-child');
+    span.textContent = btn.classList.contains('open')
+      ? 'Hide low-fit signals'
+      : 'Show 7 low-fit signals';
+  }
+
+  // Scroll-spy — highlight the legend item for whichever tier section
+  // is currently in view. Updates live as the user scrolls.
+  (function () {
+    const sections = ['tier-bright', 'tier-clear', 'tier-faint', 'tier-hidden'];
+    const navItems = {};
+    document.querySelectorAll('.legend-item').forEach(a => {
+      const id = a.getAttribute('href').slice(1);
+      navItems[id] = a;
+    });
+
+    function setActive(id) {
+      Object.values(navItems).forEach(a => a.classList.remove('active'));
+      if (navItems[id]) navItems[id].classList.add('active');
+    }
+
+    // Observer fires when a section crosses a line ~40% down the viewport,
+    // accounting for the sticky nav height at the top.
+    const observer = new IntersectionObserver((entries) => {
+      // Pick the entry highest on the page that is currently intersecting.
+      const visible = entries
+        .filter(e => e.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+      if (visible.length > 0) {
+        setActive(visible[0].target.id);
+      }
+    }, {
+      rootMargin: '-150px 0px -55% 0px',
+      threshold: 0
+    });
+
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    // Default highlight on load
+    setActive('tier-bright');
+  })();
+
+</script>
+</body>
+</html>
