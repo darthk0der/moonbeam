@@ -27,18 +27,25 @@ export default async function Home() {
 
   const admin = await isAdmin();
   
+  const latestScans = await db.select()
+    .from(scans)
+    .where(eq(scans.status, 'completed'))
+    .orderBy(desc(scans.startedAt))
+    .limit(1);
+
   let lastScanText = '';
-  if (admin) {
-    const latestScans = await db.select()
-      .from(scans)
-      .where(eq(scans.status, 'completed'))
-      .orderBy(desc(scans.startedAt))
-      .limit(1);
-    if (latestScans.length > 0) {
-      const ms = new Date().getTime() - new Date(latestScans[0].startedAt).getTime();
-      const hours = Math.round(ms / (1000 * 60 * 60));
-      lastScanText = `${hours}h ago`;
-    }
+  let globalLastScanText = '';
+  
+  if (latestScans.length > 0) {
+    const scan = latestScans[0];
+    const ms = new Date().getTime() - new Date(scan.startedAt).getTime();
+    const hours = Math.round(ms / (1000 * 60 * 60));
+    lastScanText = `${hours}h ago`;
+    
+    const dateOpts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+    const dateStr = new Date(scan.completedAt || scan.startedAt).toLocaleDateString('en-US', dateOpts);
+    const count = scan.scoredResultsCount || 0;
+    globalLastScanText = `Last Scan: ${dateStr} (${count} new signals)`;
   }
 
   const brightSignals = allSignals.filter(s => s.tier === 'bright');
@@ -52,9 +59,20 @@ export default async function Home() {
     <main>
       <header className="header">
         <h1 className="wordmark">moonbeam<span className="dot">.</span></h1>
+        
+        <p style={{ fontStyle: 'italic', maxWidth: '600px', lineHeight: '1.6', color: 'var(--text-secondary)', marginBottom: '16px' }}>
+          Moonbeam is a live prospecting tool that scrapes Twitter daily for people expressing anxiety about AI job replacement. It scores their intent and drafts personalized replies for REPLAICED. Built with Claude Code in one weekend.
+        </p>
+
         <div className="context-line">
           Finding signal in the noise for: <a href="https://replaiced.co" target="_blank" rel="noopener noreferrer">REPLAICED</a>
         </div>
+        
+        {globalLastScanText && (
+          <div style={{ fontSize: '14px', color: 'var(--text-tertiary)', marginTop: '8px' }}>
+            {globalLastScanText}
+          </div>
+        )}
 
         <div className="summary">
           <div className="summary-count">{totalCount}</div>
@@ -79,14 +97,8 @@ export default async function Home() {
         </>
       )}
 
-      {admin ? (
+      {admin && (
         <AdminFooter lastScanText={lastScanText} />
-      ) : (
-        <footer style={{ textAlign: 'center', marginTop: '60px', paddingBottom: '40px', color: 'var(--text-tertiary)' }}>
-          <p style={{ fontStyle: 'italic', maxWidth: '600px', margin: '0 auto', lineHeight: '1.6' }}>
-            Moonbeam is a live prospecting tool that scrapes Twitter daily for people expressing anxiety about AI job replacement. It scores their intent and drafts personalized replies for REPLAICED. Built with Claude Code in one weekend. <a href="https://github.com/AndrellL/moonbeam" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>Source on GitHub</a>.
-          </p>
-        </footer>
       )}
     </main>
   );
