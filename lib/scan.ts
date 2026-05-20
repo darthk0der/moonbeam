@@ -22,9 +22,9 @@ export function normalizeTweet(rawTweet: any) {
     tweet_url: rawTweet.url || `https://twitter.com/${rawTweet.author?.userName}/status/${rawTweet.id}`,
     tweet_text: rawTweet.text || rawTweet.fullText || '',
     tweet_posted_at: rawTweet.createdAt,
-    tweet_likes: rawTweet.likeCount || 0,
-    tweet_replies: rawTweet.replyCount || 0,
-    tweet_retweets: rawTweet.retweetCount || 0,
+    tweet_likes: rawTweet.likeCount || rawTweet.likes || rawTweet.favorite_count || 0,
+    tweet_replies: rawTweet.replyCount || rawTweet.replies || rawTweet.reply_count || 0,
+    tweet_retweets: rawTweet.retweetCount || rawTweet.retweets || rawTweet.retweet_count || 0,
 
     author_username: rawTweet.author?.userName || rawTweet.author?.screen_name,
     author_display_name: rawTweet.author?.name,

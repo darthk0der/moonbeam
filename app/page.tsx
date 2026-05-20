@@ -74,6 +74,10 @@ export default async function Home() {
           </div>
         )}
 
+        <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginTop: '16px' }}>
+          Built by <a href="https://www.linkedin.com/in/andre-llewellyn-b69a294/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>Andre Llewellyn</a>
+        </div>
+
         <div className="summary">
           <div className="summary-count">{totalCount}</div>
           <div className="summary-label">Recent prospects · last 14 days</div>
