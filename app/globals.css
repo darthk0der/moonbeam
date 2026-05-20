@@ -103,18 +103,24 @@ main {
 .wordmark .dot {
   font-style: normal;
   display: inline-block;
-  animation: aggressivePulse 2s ease-in-out infinite;
-  text-shadow: 0 0 10px rgba(255, 229, 92, 0.8), 0 0 20px rgba(255, 229, 92, 0.4);
+  animation: aggressivePulse 1.5s ease-in-out infinite;
 }
 
 @keyframes aggressivePulse {
   0%, 100% {
     opacity: 1;
-    text-shadow: 0 0 12px rgba(255, 229, 92, 0.9), 0 0 24px rgba(255, 229, 92, 0.6);
+    text-shadow: 
+      0 0 10px #FFE55C,
+      0 0 20px #FFE55C,
+      0 0 40px #FFE55C,
+      0 0 60px #FFE55C;
   }
   50% {
-    opacity: 0.5;
-    text-shadow: 0 0 4px rgba(255, 229, 92, 0.4), 0 0 8px rgba(255, 229, 92, 0.2);
+    opacity: 0.85;
+    text-shadow: 
+      0 0 5px #FFE55C,
+      0 0 15px rgba(255, 229, 92, 0.6),
+      0 0 25px rgba(255, 229, 92, 0.3);
   }
 }
 
