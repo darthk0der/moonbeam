@@ -103,7 +103,7 @@ main {
 .wordmark .dot {
   font-style: normal;
   display: inline-block;
-  animation: aggressivePulse 1.5s ease-in-out infinite;
+  animation: aggressivePulse 2s ease-in-out infinite;
 }
 
 @keyframes aggressivePulse {
