@@ -58,7 +58,7 @@ export default async function Home() {
   return (
     <main>
       <header className="header">
-        <h1 className="wordmark">moonbeam<span className="dot" style={{ color: '#FFE55C' }}>.</span></h1>
+        <h1 className="wordmark">moonbeam<span className="dot">.</span></h1>
         
         <div className="context-line">
           Finding signal in the noise for: <a href="https://replaiced.co" target="_blank" rel="noopener noreferrer">REPLAICED</a>
