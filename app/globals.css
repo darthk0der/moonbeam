@@ -100,7 +100,23 @@ main {
   font-style: italic;
 }
 
-.wordmark .dot { color: var(--beam); font-style: normal; }
+.wordmark .dot {
+  font-style: normal;
+  display: inline-block;
+  animation: aggressivePulse 2s ease-in-out infinite;
+  text-shadow: 0 0 10px rgba(255, 229, 92, 0.8), 0 0 20px rgba(255, 229, 92, 0.4);
+}
+
+@keyframes aggressivePulse {
+  0%, 100% {
+    opacity: 1;
+    text-shadow: 0 0 12px rgba(255, 229, 92, 0.9), 0 0 24px rgba(255, 229, 92, 0.6);
+  }
+  50% {
+    opacity: 0.5;
+    text-shadow: 0 0 4px rgba(255, 229, 92, 0.4), 0 0 8px rgba(255, 229, 92, 0.2);
+  }
+}
 
 /* Product context line — now prominent, at the top */
 .context-line {
