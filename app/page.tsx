@@ -65,7 +65,7 @@ export default async function Home() {
         </div>
 
         <p style={{ fontStyle: 'italic', maxWidth: '600px', lineHeight: '1.6', color: 'var(--text-secondary)', marginBottom: '16px', marginTop: '16px' }}>
-          Moonbeam is a live prospecting tool that scrapes Twitter daily for people expressing interest or receptivity to a product or service. It automatically scores their intent and drafts personalized replies. Built with Claude Code in one weekend. This demo is showcasing prospects for REPLAICED.
+          Moonbeam is a live prospecting tool that scrapes Twitter daily for people expressing interest in, or receptivity to, a product or service. It automatically scores their intent and drafts personalized replies. Built with Claude Code in one weekend. This demo is showcasing prospects for REPLAICED.
         </p>
 
         {globalLastScanText && (
