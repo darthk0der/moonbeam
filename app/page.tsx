@@ -58,16 +58,16 @@ export default async function Home() {
   return (
     <main>
       <header className="header">
-        <h1 className="wordmark">moonbeam<span className="dot">.</span></h1>
+        <h1 className="wordmark">moonbeam<span className="dot" style={{ color: '#FFE55C' }}>.</span></h1>
         
-        <p style={{ fontStyle: 'italic', maxWidth: '600px', lineHeight: '1.6', color: 'var(--text-secondary)', marginBottom: '16px' }}>
-          Moonbeam is a live prospecting tool that scrapes Twitter daily for people expressing anxiety about AI job replacement. It scores their intent and drafts personalized replies for REPLAICED. Built with Claude Code in one weekend.
-        </p>
-
         <div className="context-line">
           Finding signal in the noise for: <a href="https://replaiced.co" target="_blank" rel="noopener noreferrer">REPLAICED</a>
         </div>
-        
+
+        <p style={{ fontStyle: 'italic', maxWidth: '600px', lineHeight: '1.6', color: 'var(--text-secondary)', marginBottom: '16px', marginTop: '16px' }}>
+          Moonbeam is a live prospecting tool that scrapes Twitter daily for people expressing interest or receptivity to a product or service. It automatically scores their intent and drafts personalized replies. Built with Claude Code in one weekend. This demo is showcasing prospects for REPLAICED.
+        </p>
+
         {globalLastScanText && (
           <div style={{ fontSize: '14px', color: 'var(--text-tertiary)', marginTop: '8px' }}>
             {globalLastScanText}
